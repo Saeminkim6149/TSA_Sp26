@@ -1,7 +1,7 @@
 ---
 title: "ENV 790.30 - Time Series Analysis for Energy Data | Spring 2026"
 subtitle: "Assignment 2 - Due date 01/27/26"
-author: "Student Name"
+author: "Saemin Kim"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -22,7 +22,10 @@ R packages needed for this assignment:"forecast","tseries", and "dplyr". Install
 
 ```{r}
 #Load/install required package here
-
+library(forecast)
+library(tseries)
+library(dplyr)
+library(readxl)
 ```
 
 
@@ -32,7 +35,7 @@ Consider the data provided in the spreadsheet "Table_10.1_Renewable_Energy_Produ
 
 ```{r}
 #Importing data set
-
+df_energy <- read_xlsx("../Data/Table_10.1_Renewable_Energy_Production_and_Consumption_by_Source.xlsx", skip=10)
 ```
 
 
@@ -40,7 +43,10 @@ Consider the data provided in the spreadsheet "Table_10.1_Renewable_Energy_Produ
 You will work only with the following columns: Total Biomass Energy Production, Total Renewable Energy Production, Hydroelectric Power Consumption. Create a data frame structure with these three time series only. Use the command head() to verify your data.
 
 ```{r}
-
+df_select <- df_energy %>% 
+  select(`Total Biomass Energy Production`, 
+         `Total Renewable Energy Production`, 
+         `Hydroelectric Power Consumption`)
 ```
 
 
@@ -48,7 +54,7 @@ You will work only with the following columns: Total Biomass Energy Production, 
 Transform your data frame in a time series object and specify the starting point and frequency of the time series using the function ts().
 
 ```{r}
-
+ts_energy <- ts(df_select, start=c(1973, 1), frequency=12)
 ```
 
 
@@ -56,7 +62,8 @@ Transform your data frame in a time series object and specify the starting point
 Compute mean and standard deviation for these three series.
 
 ```{r}
-
+colMeans(ts_energy)
+apply(ts_energy, 2, sd)
 ```
 
 
@@ -64,7 +71,8 @@ Compute mean and standard deviation for these three series.
 Display and interpret the time series plot for each of these variables. Try to make your plot as informative as possible by writing titles, labels, etc. For each plot add a horizontal line at the mean of each series in a different color.
 
 ```{r}
-
+plot(ts_energy[,1], main="Total Biomass Production", ylab="Energy", col="blue")
+abline(h=mean(ts_energy[,1]), col="red", lwd=2)
 ```
 
 
@@ -72,7 +80,8 @@ Display and interpret the time series plot for each of these variables. Try to m
 Compute the correlation between these three series. Are they significantly correlated? Explain your answer.
 
 ```{r}
-
+energy_correlation <- cor(ts_energy)
+print(energy_correlation)
 ```
 
 
@@ -80,7 +89,7 @@ Compute the correlation between these three series. Are they significantly corre
 Compute the autocorrelation function from lag 1 up to lag 40 for these three variables. What can you say about these plots? Do the three of them have the same behavior?
 
 ```{r}
-
+Acf(ts_energy[,1], lag.max=40, main="ACF - Biomass")
 ```
 
 
@@ -88,7 +97,7 @@ Compute the autocorrelation function from lag 1 up to lag 40 for these three var
 Compute the partial autocorrelation function from lag 1 to lag 40 for these three variables. How these plots differ from the ones in Q6?
 
 ```{r}
-
+Pacf(ts_energy[,1], lag.max=40, main="PACF - Biomass")
 ```
 
 
