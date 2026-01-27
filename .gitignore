@@ -52,3 +52,5 @@ vignettes/*.pdf
 
 #Mac files
 .DS_Store
+Assignments/SaeminKim*
+Assignments/*.pdf
