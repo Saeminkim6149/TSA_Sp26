@@ -1,6 +1,6 @@
 ---
 title: "Import Data - ACF - PACF"
-author: "Luana Lima"
+author: "Saemin Kim"
 output: pdf_document
 editor_options: 
   chunk_output_type: console
@@ -30,9 +30,9 @@ library(forecast) #added for Acf and Pacf functions
 
 For this first example we will import water inflow data for reservoirs in Brazil. We have data for 15 different reservoirs spread all over the country. To import a .txt, .csv or .xlsx file you can use the function *read.table()*. This function will store the data as a data frame and has useful inputs such as
 
-* *file = * : use this input to point to yoru data file. If it's on the same folder as your .Rmd then you only need to write the file name. But if it's on another folder you need to point to the path were file is located;
+* *file = * : use this input to point to your data file. If it's on the same folder as your .Rmd then you only need to write the file name. But if it's on another folder you need to point to the path were file is located;
 * *header =* : if your file has a header you should set this to TRUE, o.w. FALSE;
-* *skip =* : if your file has rows explaining the data or any other rows on the top that need to be skipped you should just set skip to be equal to the number of row that should be skipped before reading the data. Mote that if header=TRUE, you should not skip the row with the header. The default is *skip=0*;
+* *skip =* : if your file has rows explaining the data or any other rows on the top that need to be skipped you should just set skip to be equal to the number of row that should be skipped before reading the data. Note that if header=TRUE, you should not skip the row with the header. The default is *skip=0*;
 * *dec =* : define *dec="."* or *dec=","* depending on how it's defined on your set. The default is ".".
 
 ```{r}
@@ -51,7 +51,7 @@ getwd()
 # my output was "/Users/lmm89/Library/CloudStorage/OneDrive-Personal/Duke_University/15_Spring2025/ENV797_TSA/Github/TSA_Sp25" meaning current directory is my project folder, therefore I only need to use "."
 # if output was "/Users/lmm89/Library/CloudStorage/OneDrive-Personal/Duke_University/15_Spring2025/ENV797_TSA/Github/TSA_Sp25/Lessons" then I would need to use ".."
 
-raw_inflow_data <- read.table(file="./Data/inflowtimeseries.txt",header=FALSE,skip=0)
+raw_inflow_data <- read.table(file="./Data/inflowtimeseries.txt", header=FALSE, skip=0)
 
 #If you want specific columns just trim the table
 raw_inflow_data <- raw_inflow_data[,1:5] #the space before the comma means you want all rows
@@ -88,10 +88,13 @@ A plot of observed values over time is the first thing you do to start understan
 
 ```{r}
 #using package ggplot2
-ggplot()
+ggplot(inflow_data, aes(x=my_date, y=HP3))
 
 #adding two time series to the same plot
-
+ggplot(inflow_data, aes(x=my_date)) +
+  geom_line(aes(y=HP2, color="Reservoir 2")) +
+  geom_line(aes(y=HP3, color="Reservoir 3")) +
+  labs(y="Inflow", color="Legend")
 ```
 
 In this course we will also use *autoplot()* which is a ggplot() for time series object. But then we will need to convert our inflow data frame to a *ts* object first.
@@ -102,9 +105,10 @@ In this course we will also use *autoplot()* which is a ggplot() for time series
 Many of the functions we will use require a time series object. You can transform your data in a time series using the function *ts()*. Only the columns with reservoir inflow data should be transformed, not the ones with month and year. Your ts object is not a data frame, but like I said we will need it as a ts for some function we will explore in future scripts.
 
 ```{r}
-ts_inflow_data <- #####
+ts_inflow_data <- ts(inflow_data[, 2:4], 
+                     start = c(1931, 1),
+                     frequency = 12)
 ts_inflow_data
-
 ```
 
 Note that ts_inflow_data has information on start, end and frequency. We will discuss frequency in future lectures, for now let's just keep the default value for frequency which is 1.
@@ -127,16 +131,14 @@ There are multiple ways to get acf and pacf plots in R. The default package "sta
 
 ```{r acf}
 # Option 1: The function acf() and pacf() is from package "stats"
-HP1_acf=
-
-HP1_pacf=
+HP1_acf <- acf(ts_inflow_data[, 1], lag.max=40,plot=TRUE)
+HP1_pacf <- pacf(ts_inflow_data[,1], lag.max=60, plot=TRUE) 
 
 #Option 2: Computing ACF and PACF with package "forecast"
 
 #The next line will output a plot since we have plot=TRUE and also store the acf values in the object
-HP1_acf=
-
-HP1_pacf=
+HP1_acf <- Acf(ts_inflow_data[, 1], lag.max = 40)
+HP1_pacf <- Pacf(ts_inflow_data[,1], lag.max=60, plot=TRUE)
   
 ```
 
